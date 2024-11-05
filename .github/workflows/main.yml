@@ -16,6 +16,18 @@ jobs:
     
     - name: Clone SecSend repository
       run: git clone https://github.com/aguinet/secsend.git
+    - name: Add Cloudflare repository
+      run: |
+        sudo mkdir -p --mode=0755 /usr/share/keyrings
+        curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
+        echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared jammy main' | sudo tee /etc/apt/sources.list.d/cloudflared.list
+        sudo apt-get update
+
+    - name: Cache apt packages
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: cloudflared
+        version: 1.0
       
     - name: Change to SecSend directory 
       run: ls -l secsend/
@@ -24,5 +36,19 @@ jobs:
       run: mv secsend/docker.env.example secsend/docker.env
       
     - name: Run SecSend Docker container
+      env:
+        CF_TUNNEL_CERT: ${{secrets.CF_CERT}}
+        CF_TUNNEL_UUID: ${{secrets.CF_TUNNEL_UUID}}
+        CF_TUNNEL_UUID_CONTENT: ${{secrets.CF_TUNNEL_UUID_CONTENT}}
       run: |
+        mkdir ~/.cloudflared
+        echo "${CF_TUNNEL_CERT}" > ~/.cloudflared/cert.pem
+        touch tunnel-config.yml
+        echo "${CF_TUNNEL_UUID_CONTENT}" > credentials.json
+        echo "url: tcp://localhost:25565" >> tunnel-config.yml
+        echo "tunnel: ${CF_TUNNEL_UUID}" >> tunnel-config.yml
+        echo "credentials-file: credentials.json" >> tunnel-config.yml
+        cloudflared tunnel --config tunnel-config.yml run ${CF_TUNNEL_UUID} &
+        CLOUDFLARED_PID=$!
+        echo "Cloudflare Tunnel started with PID $CLOUDFLARED_PID"
         docker run --env-file secsend/docker.env -p 8000:80 -v /path/to/data/storage:/data aguinet/secsend:v1.1.1
