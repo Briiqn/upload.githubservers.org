@@ -53,12 +53,12 @@ jobs:
         cloudflared tunnel --config tunnel-config.yml run ${CF_TUNNEL_UUID} &
         CLOUDFLARED_PID=$!
         echo "Cloudflare Tunnel started with PID $CLOUDFLARED_PID"
-        docker run --env-file secsend/docker.env -p 8000:80 -v ~/data/:/data aguinet/secsend:v1.1.1
+        docker run --env-file secsend/docker.env -p 8000:80 -v ~/data/:/data aguinet/secsend:v1.1.1 &
 
         commit_and_push() {
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add -A  # Stage all changes
+          git add ~/data/
           git reset -- tunnel-config.yml
           git reset -- credentials.json
           git reset -- logs/
