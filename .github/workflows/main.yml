@@ -1,0 +1,28 @@
+name: SecSend Server
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Clone SecSend repository
+      run: git clone https://github.com/aguinet/secsend.git
+      
+    - name: Change to SecSend directory 
+      run: cd secsend
+      
+    - name: Rename docker.env.example
+      run: mv docker.env.example docker.env
+      
+    - name: Run SecSend Docker container
+      run: |
+        docker run --env-file docker.env -p 8000:80 -v /path/to/data/storage:/data aguinet/secsend:v1.1.1
