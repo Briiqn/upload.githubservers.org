@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@v3
     
     - name: Clone SecSend repository
-      run: git clone https://github.com/aguinet/secsend.git
+      run: git clone https://github.com/Briiqn/secsend.git
       
     - name: Add Cloudflare repository
       run: |
