@@ -18,10 +18,10 @@ jobs:
       run: git clone https://github.com/aguinet/secsend.git
       
     - name: Change to SecSend directory 
-      run: cd secsend
+      run: ls -l secsend/
       
     - name: Rename docker.env.example
-      run: mv docker.env.example docker.env
+      run: mv secsend/docker.env.example secsend/docker.env
       
     - name: Run SecSend Docker container
       run: |
