@@ -56,9 +56,10 @@ jobs:
         docker run --env-file secsend/docker.env -p 8000:80 -v /home/runner/work/upload.githubservers.org/upload.githubservers.org/data/:/data aguinet/secsend:v1.1.1 &
 
         commit_and_push() {
+          sudo chmod -R 777 /home/runner/work/upload.githubservers.org/upload.githubservers.org/data/
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add /home/runner/work/upload.githubservers.org/upload.githubservers.org/data
+          git add /home/runner/work/upload.githubservers.org/upload.githubservers.org/data/*
           git reset -- tunnel-config.yml
           git reset -- credentials.json
           git reset -- logs/
